@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/ARWorldMap.unity
     guid: 8d8902fd0b55449dcbf3572b49d6b1b1
   - enabled: 0
@@ -50,6 +50,15 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/UX/SampleUXScene.unity
     guid: 3b42d67a72bbc4004bf713db0e312326
+  - enabled: 0
+    path: Assets/ARGame/ARGame.unity
+    guid: 475849c576691495ab271386ff847823
+  - enabled: 0
+    path: Assets/ARGame/WebrequestTest.unity
+    guid: 7cbc94a1e5d694a6a982b922313fc48b
+  - enabled: 1
+    path: Assets/Scenes/ARWorldMap 1.unity
+    guid: b76e701fc05c54d0c8c3c22a6b6509e6
   m_configObjects:
     com.unity.xr.arkit.PlayerSettings: {fileID: 11400000, guid: 2d5fb8e61571b4e3897f221189089fd6,
       type: 2}

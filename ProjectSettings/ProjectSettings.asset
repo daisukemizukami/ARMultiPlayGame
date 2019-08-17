@@ -161,7 +161,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: com.unity.arfoundation.samples
     Standalone: com.Fig.ARWorldMapTest
-    iPhone: com.unity.arfoundation.samples
+    iPhone: com.Fig.ARWorldMap1
   buildNumber: {}
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 24
