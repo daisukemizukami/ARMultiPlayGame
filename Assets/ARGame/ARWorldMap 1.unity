@@ -464,6 +464,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IP_InputField: {fileID: 1351812597}
+  _httpPort: 3000
+  _PostDirectory: upload
+  _GetDirectory: download
   m_ARSession: {fileID: 2030565722}
   m_ErrorText: {fileID: 1146635410}
   m_LogText: {fileID: 1544020817}
@@ -482,11 +485,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6deeb7ae4c0441bfb824aed2d2218c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _serverAddress: 192.168.1.2
-  _port: 8080
+  _WSPort: 8080
   _syncObjTransform: {fileID: 922031779}
   OtherCube: {fileID: 1702502037}
   _nowPhase: 0
+  IP_inputField: {fileID: 1351812597}
 --- !u!1 &277232891
 GameObject:
   m_ObjectHideFlags: 0
@@ -1732,7 +1735,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: http://192.168.1.2:3000/upload
+  m_Text: 192.168.1.2
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
@@ -2335,7 +2338,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: http://192.168.1.2:300
+  m_Text: 192.168.1.2
 --- !u!222 &1894947543
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2414,7 +2417,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter text...
+  m_Text: 192.168.1.2
 --- !u!222 &1921822105
 CanvasRenderer:
   m_ObjectHideFlags: 0

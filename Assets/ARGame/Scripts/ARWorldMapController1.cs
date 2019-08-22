@@ -14,6 +14,8 @@ using System.Security.Cryptography;
 using UnityEngine.XR.ARKit;
 #endif
 
+
+
 /// <summary>
 /// Demonstrates the saving and loading of an
 /// <a href="https://developer.apple.com/documentation/arkit/arworldmap">ARWorldMap</a>
@@ -26,6 +28,10 @@ public class ARWorldMapController1 : MonoBehaviour
 {
 
     public InputField IP_InputField;
+    [SerializeField] int _httpPort;
+    [SerializeField] string _PostDirectory;
+    [SerializeField] string _GetDirectory;
+
 
     [Tooltip("The ARSession component controlling the session from which to generate ARWorldMaps.")]
     [SerializeField]
@@ -139,7 +145,7 @@ public class ARWorldMapController1 : MonoBehaviour
 #if UNITY_IOS
     IEnumerator Save()
     {
-        var UpUrl = IP_InputField.text;
+        var UpUrl = "http://" + IP_InputField.text + ":" + _httpPort.ToString() + "/" + _PostDirectory;
 
         var sessionSubsystem = (ARKitSessionSubsystem)m_ARSession.subsystem;
         if (sessionSubsystem == null)
@@ -221,7 +227,9 @@ public class ARWorldMapController1 : MonoBehaviour
             yield break;
         }
 
-        UnityWebRequest www = new UnityWebRequest("http://192.168.1.2:3000/download");
+        var DlUrl = "http://" + IP_InputField.text + ":" + _httpPort.ToString() + "/" + _GetDirectory;
+
+        UnityWebRequest www = new UnityWebRequest(DlUrl);
         www.downloadHandler = new DownloadHandlerBuffer();
         yield return www.SendWebRequest();
 

@@ -26,6 +26,9 @@ public class ARGame : MonoBehaviour
     Button m_SaveButton;
 
     public InputField IP_InputField;
+    [SerializeField] int _httpPort;
+    [SerializeField] string _PostDirectory;
+    [SerializeField] string _GetDirectory;
 
 
     /// <summary>
@@ -67,9 +70,9 @@ public class ARGame : MonoBehaviour
         IEnumerator OnSend()
     {
 
-        var UPurl = "http://localhost:3000/jsonUpload";
-        //var UPurl = IP_InputField.text;
-        Debug.Log(UPurl);
+        var UpUrl = "http://" + IP_InputField.text + ":" + _httpPort.ToString() + "/" + _PostDirectory;
+
+        Debug.Log(UpUrl);
 
         ////POSTする情報
         //WWWForm form = new WWWForm();
@@ -91,7 +94,7 @@ public class ARGame : MonoBehaviour
         Debug.Log("hash :" + _GetHashedTextString(postData));
         Debug.Log("バイナリ :" + postData);
 
-        var webRequest = new UnityWebRequest(UPurl, "POST");
+        var webRequest = new UnityWebRequest(UpUrl, "POST");
         webRequest.uploadHandler = (UploadHandler)new UploadHandlerRaw(postData);
         webRequest.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         webRequest.SetRequestHeader("Content-Type", "application/octet-stream");
@@ -137,17 +140,20 @@ public class ARGame : MonoBehaviour
 
         IEnumerator Load()
     {
-//#if UNITY_IOS
+        //#if UNITY_IOS
 
-//        var sessionSubsystem = (ARKitSessionSubsystem)m_ARSession.subsystem;
-//        if (sessionSubsystem == null)
-//        {
-//            //Log("No session subsystem available. Could not load.");
-//            yield break;
-//        }
-//#endif
+        //        var sessionSubsystem = (ARKitSessionSubsystem)m_ARSession.subsystem;
+        //        if (sessionSubsystem == null)
+        //        {
+        //            //Log("No session subsystem available. Could not load.");
+        //            yield break;
+        //        }
+        //#endif
 
-        UnityWebRequest www = new UnityWebRequest("http://192.168.1.2:3000/download");
+        var DlUrl = "http://" + IP_InputField.text + ":" + _httpPort.ToString() + "/" + _GetDirectory;
+
+
+        UnityWebRequest www = new UnityWebRequest(DlUrl);
         www.downloadHandler = new DownloadHandlerBuffer();
         yield return www.SendWebRequest();
 

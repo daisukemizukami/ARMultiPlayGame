@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using WebSocketSharp;
 using UniRx;
+using UnityEngine.UI;
 
 public class PositionSync : MonoBehaviour
 {
 
-	[SerializeField] private string _serverAddress;
-	[SerializeField] private int _port;
-
+	[SerializeField] private int _WSPort;
 	[SerializeField] private Transform _syncObjTransform;   //Share transform
     [SerializeField] GameObject OtherCube;   //Share transform
 
@@ -17,6 +16,7 @@ public class PositionSync : MonoBehaviour
     [SerializeField] private SyncPhase _nowPhase;
 
 	private WebSocket ws;
+    public InputField IP_inputField;
 
 	public enum SyncPhase
 	{
@@ -37,7 +37,7 @@ public class PositionSync : MonoBehaviour
 	/// </summary>
 	public void OnSyncStartButtonDown()
 	{
-		var ca = "ws://" + _serverAddress + ":" + _port.ToString();
+		var ca = "ws://" + IP_inputField.text + ":" + _WSPort.ToString();
 		Debug.Log("Connect to " + ca);
 		ws = new WebSocket(ca);
 
