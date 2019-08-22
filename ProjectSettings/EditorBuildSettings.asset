@@ -57,7 +57,7 @@ EditorBuildSettings:
     path: Assets/ARGame/WebrequestTest.unity
     guid: 7cbc94a1e5d694a6a982b922313fc48b
   - enabled: 1
-    path: Assets/Scenes/ARWorldMap 1.unity
+    path: Assets/ARGame/ARWorldMap 1.unity
     guid: b76e701fc05c54d0c8c3c22a6b6509e6
   m_configObjects:
     com.unity.xr.arkit.PlayerSettings: {fileID: 11400000, guid: 2d5fb8e61571b4e3897f221189089fd6,

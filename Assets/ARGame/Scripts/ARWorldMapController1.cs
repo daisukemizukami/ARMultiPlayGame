@@ -7,6 +7,9 @@ using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.Networking;
+using System.Text;
+using System.Security.Cryptography;
+
 #if UNITY_IOS
 using UnityEngine.XR.ARKit;
 #endif
@@ -189,6 +192,26 @@ public class ARWorldMapController1 : MonoBehaviour
 
     }
 
+    // 文字列のハッシュ値（SHA256）を計算・取得する
+    protected string _GetHashedTextString(byte[] data)
+    {
+        // パスワードをUTF-8エンコードでバイト配列として取り出す
+        //byte[] byteValues = Encoding.UTF8.GetBytes(passwd);
+
+        // SHA256のハッシュ値を計算する
+        SHA256 crypto256 = new SHA256CryptoServiceProvider();
+        byte[] hash256Value = crypto256.ComputeHash(data);
+
+        // SHA256の計算結果をUTF8で文字列として取り出す
+        StringBuilder hashedText = new StringBuilder();
+        for (int i = 0; i < hash256Value.Length; i++)
+        {
+            // 16進の数値を文字列として取り出す
+            hashedText.AppendFormat("{0:X2}", hash256Value[i]);
+        }
+        return hashedText.ToString();
+    }
+
     IEnumerator Load()
     {
         var sessionSubsystem = (ARKitSessionSubsystem)m_ARSession.subsystem;
@@ -198,47 +221,76 @@ public class ARWorldMapController1 : MonoBehaviour
             yield break;
         }
 
-        var file = File.Open(path, FileMode.Open);
-        if (file == null)
-        {
-            Log(string.Format("File {0} does not exist.", path));
-            yield break;
-        }
+        UnityWebRequest www = new UnityWebRequest("http://192.168.1.2:3000/download");
+        www.downloadHandler = new DownloadHandlerBuffer();
+        yield return www.SendWebRequest();
 
-        Log(string.Format("Reading {0}...", path));
-
-        int bytesPerFrame = 1024 * 10;
-        var bytesRemaining = file.Length;
-        var binaryReader = new BinaryReader(file);
+        byte[] worldMap_byte;
         var allBytes = new List<byte>();
-        while (bytesRemaining > 0)
+
+
+        if (www.isNetworkError || www.isHttpError)
         {
-            var bytes = binaryReader.ReadBytes(bytesPerFrame);
-            allBytes.AddRange(bytes);
-            bytesRemaining -= bytesPerFrame;
-            yield return null;
-        }
-
-        var data = new NativeArray<byte>(allBytes.Count, Allocator.Temp);
-        data.CopyFrom(allBytes.ToArray());
-
-        Log(string.Format("Deserializing to ARWorldMap...", path));
-        ARWorldMap worldMap;
-        if (ARWorldMap.TryDeserialize(data, out worldMap))
-        data.Dispose();
-
-        if (worldMap.valid)
-        {
-            Log("Deserialized successfully.");
+            Debug.Log(www.error);
         }
         else
         {
-            Debug.LogError("Data is not a valid ARWorldMap.");
-            yield break;
+          
+            // または、バイナリデータで結果を表示
+            worldMap_byte = www.downloadHandler.data;
+
+
+            Debug.Log("hash" + _GetHashedTextString(worldMap_byte));
+
+
+            allBytes.AddRange(worldMap_byte);
+          
+            var worldMap_nativearray = new NativeArray<byte>(allBytes.Count, Allocator.Temp);
+            worldMap_nativearray.CopyFrom(allBytes.ToArray());
+            ARWorldMap worldMap;
+            if (ARWorldMap.TryDeserialize(worldMap_nativearray, out worldMap))
+                worldMap_nativearray.Dispose();
+
+            if (worldMap.valid)
+            {
+                Log("Deserialized successfully.");
+            }
+            else
+            {
+                Log("Data is not a valid ARWorldMap.");
+                yield break;
+            }
+
+            Log("Apply ARWorldMap to current session.");
+
+
+            sessionSubsystem.ApplyWorldMap(worldMap);
+
+
         }
 
-        Log("Apply ARWorldMap to current session.");
-        sessionSubsystem.ApplyWorldMap(worldMap);
+        //var file = File.Open(path, FileMode.Open);
+        //if (file == null)
+        //{
+        //    Log(string.Format("File {0} does not exist.", path));
+        //    yield break;
+        //}
+
+        //Log(string.Format("Reading {0}...", path));
+
+        //int bytesPerFrame = 1024 * 10;
+        //var bytesRemaining = file.Length;
+        //var binaryReader = new BinaryReader(file);
+        //var allBytes = new List<byte>();
+        //while (bytesRemaining > 0)
+        //{
+        //    var bytes = binaryReader.ReadBytes(bytesPerFrame);
+        //    allBytes.AddRange(bytes);
+        //    bytesRemaining -= bytesPerFrame;
+        //    yield return null;
+        //}
+
+  
     }
 
    
