@@ -11,7 +11,7 @@ public class PositionSync : MonoBehaviour
 	[SerializeField] private int _port;
 
 	[SerializeField] private Transform _syncObjTransform;   //Share transform
-    [SerializeField] private Transform _syncOtherObjTransform;   //Share transform
+    [SerializeField] GameObject OtherCube;   //Share transform
 
 
     [SerializeField] private SyncPhase _nowPhase;
@@ -41,12 +41,30 @@ public class PositionSync : MonoBehaviour
 		Debug.Log("Connect to " + ca);
 		ws = new WebSocket(ca);
 
-		//Add Events
-		//On catch message event
-		ws.OnMessage += (object sender, MessageEventArgs e) => {
+        var context = System.Threading.SynchronizationContext.Current;
+
+
+        //Add Events
+        //On catch message event
+        ws.OnMessage += (object sender, MessageEventArgs e) => {
 			print(e.Data);
 
-		};
+            Vector3 pos = StringToVector3(e.Data);
+            print(e.Data);
+            print(pos.x);
+            print(pos.y);
+            print(pos.z);
+
+
+            // Main Threadで実行する.
+            context.Post(state =>
+            {
+                OtherCube.transform.position = pos;
+
+            }, e.Data);
+
+
+        };
 
 		//On error event
 		ws.OnError += (sender, e) => {
@@ -57,7 +75,9 @@ public class PositionSync : MonoBehaviour
 		//On WebSocket close event
 		ws.OnClose += (sender, e) => {
 			Debug.Log("Disconnected Server");
-		};
+            _nowPhase = SyncPhase.Idling;
+
+        };
 
 		ws.Connect();
 
@@ -86,4 +106,24 @@ public class PositionSync : MonoBehaviour
         }
        
 	}
+
+    public static Vector3 StringToVector3(string sVector)
+    {
+        // Remove the parentheses
+        if (sVector.StartsWith("(") && sVector.EndsWith(")"))
+        {
+            sVector = sVector.Substring(1, sVector.Length - 2);
+        }
+
+        // split the items
+        string[] sArray = sVector.Split(',');
+
+        // store as a Vector3
+        Vector3 result = new Vector3(
+            float.Parse(sArray[0]),
+            float.Parse(sArray[1]),
+            float.Parse(sArray[2]));
+
+        return result;
+    }
 }
