@@ -67,7 +67,13 @@ public class ARGame : MonoBehaviour
         StartCoroutine(Load());
     }
 
-        IEnumerator OnSend()
+    public void OnAttackButton()
+    {
+        this.GetComponent<PositionSync>().SkillShootPos();
+    }
+
+
+    IEnumerator OnSend()
     {
 
         var UpUrl = "http://" + IP_InputField.text + ":" + _httpPort.ToString() + "/" + _PostDirectory;
@@ -140,6 +146,7 @@ public class ARGame : MonoBehaviour
 
         IEnumerator Load()
     {
+
         //#if UNITY_IOS
 
         //        var sessionSubsystem = (ARKitSessionSubsystem)m_ARSession.subsystem;

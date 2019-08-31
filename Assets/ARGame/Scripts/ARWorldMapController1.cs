@@ -114,6 +114,9 @@ public class ARWorldMapController1 : MonoBehaviour
     /// <summary>
     /// Create an <c>ARWorldMap</c> and save it to disk.
     /// </summary>
+    ///
+
+
     public void OnSaveButton()
     {
 #if UNITY_IOS
@@ -301,7 +304,14 @@ public class ARWorldMapController1 : MonoBehaviour
   
     }
 
-   
+    public void OnAttackButton()
+    {
+        this.GetComponent<PositionSync>().SkillShootPos();
+    }
+
+
+
+
 #endif
 
     string path

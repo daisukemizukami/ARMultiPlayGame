@@ -13,6 +13,10 @@ public class PositionSync : MonoBehaviour
     [SerializeField] private Transform _syncObjTransform;   //Share transform
     [SerializeField] GameObject OtherCube;   //Share transform
     [SerializeField] private SyncPhase _nowPhase;
+    [SerializeField] private  float speed = 1f;
+
+
+    public GameObject bullet;
 
     private WebSocket ws;
     public InputField IP_inputField;
@@ -42,18 +46,32 @@ public class PositionSync : MonoBehaviour
 
     }
 
-    public void OnChangedTargetTransformValue(Vector3 pos)
+
+    //playerのposを送信
+    public void OnChangedTargetTransformValue(Vector3 pos,Vector3 eulerAngle)
     {
         if (_nowPhase == SyncPhase.Syncing)
         {
-            Debug.Log(pos);
+            Debug.Log("Player Pos : " + pos);
 
-            ws.Send(pos.ToString());
+            JsonData Item = new JsonData();
+            Item.type = "player";
+            //Item.id = 1;
+            Item.posX = pos.x;
+            Item.posY = pos.y;
+            Item.posZ = pos.z;
+            Item.eulerAngleX = eulerAngle.x;
+            Item.eulerAngleY = eulerAngle.y;
+            Item.eulerAngleZ = eulerAngle.z;
 
+            string serialisedItemJson = JsonUtility.ToJson(Item);
+
+            ws.Send(serialisedItemJson);
         }
-
     }
 
+
+    //UIInputから変更があればすぐに反映
     public void OnChangedTargetIntervalValue(String interval)
     {
         try
@@ -74,6 +92,25 @@ public class PositionSync : MonoBehaviour
 
 
     }
+
+    //AttackButton押下でmessage送信
+    public void SkillShootPos()
+    {
+        //playerの位置からskillを出す
+        var pos = _syncObjTransform;
+
+        JsonData item = new JsonData();
+        item.type = "skill";
+        item.posX = pos.position.x;
+        item.posY = pos.position.y;
+        item.posZ = pos.position.z;
+        item.eulerAngleX = pos.eulerAngles.x;
+        item.eulerAngleY = pos.eulerAngles.y;
+        item.eulerAngleZ = pos.eulerAngles.z;
+
+        string serialisedItemJson = JsonUtility.ToJson(item);
+        ws.Send(serialisedItemJson);
+    }
     
 
 private void Update()
@@ -81,9 +118,9 @@ private void Update()
         tmpTime += Time.deltaTime;
        if( tmpTime > _interval)
         {
-            OnChangedTargetTransformValue(_syncObjTransform.position);
-
-
+          
+            OnChangedTargetTransformValue(_syncObjTransform.position,_syncObjTransform.eulerAngles);
+     
             tmpTime = 0;
         }
 
@@ -106,18 +143,52 @@ private void Update()
         //Add Events
         //On catch message event
         ws.OnMessage += (object sender, MessageEventArgs e) => {
-			Debug.Log(e.Data);
 
-            Vector3 pos = StringToVector3(e.Data);
-            Debug.Log(e.Data);
-     
+            Debug.Log("Recieved :" + e.Data);
 
-            // Main Threadで実行する.
-            context.Post(state =>
+            JsonData item = JsonUtility.FromJson<JsonData>(e.Data);
+            Debug.Log("Recieved :" + e.Data);
+
+
+            Vector3 pos = new Vector3(item.posX, item.posY, item.posZ);
+            Vector3 eulerAngles = new Vector3(item.eulerAngleX, item.eulerAngleY, item.eulerAngleZ);
+
+            //otherPlayerのpositionを更新
+            if (item.type == "player")
             {
-                OtherCube.transform.position = pos;
+                
 
-            }, e.Data);
+
+                // Main Threadでposition更新を実行する.
+                context.Post(state =>
+                {
+                    OtherCube.transform.position = pos;
+                    OtherCube.transform.eulerAngles = eulerAngles;
+
+                }, e.Data);
+
+            }
+            else if(item.type == "skill")
+            {
+                // Main Threadでposition更新を実行する.
+                context.Post(state =>
+                {
+                    GameObject bullets = Instantiate(bullet) as GameObject;
+                    bullets.transform.position = pos;
+                    bullets.transform.eulerAngles = eulerAngles;
+                    Vector3 force;
+                    force = bullets.transform.forward * speed;
+                    bullets.GetComponent<Rigidbody>().AddForce(force);
+
+                }, e.Data);
+
+       
+            }
+            else if(item.type == "connection")
+            {
+                Debug.Log("new connection id : " +  item.id);
+            }
+
 
 
         };
@@ -151,7 +222,7 @@ private void Update()
     }
 
  
-
+    //serverから受け取ったJson　Stringをvector3型に変換
     public static Vector3 StringToVector3(string sVector)
     {
         // Remove the parentheses
