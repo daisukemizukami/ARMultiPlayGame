@@ -111,6 +111,8 @@ public class ARWorldMapController1 : MonoBehaviour
         set { m_LoadButton = value; }
     }
 
+
+
     /// <summary>
     /// Create an <c>ARWorldMap</c> and save it to disk.
     /// </summary>
@@ -280,28 +282,6 @@ public class ARWorldMapController1 : MonoBehaviour
 
         }
 
-        //var file = File.Open(path, FileMode.Open);
-        //if (file == null)
-        //{
-        //    Log(string.Format("File {0} does not exist.", path));
-        //    yield break;
-        //}
-
-        //Log(string.Format("Reading {0}...", path));
-
-        //int bytesPerFrame = 1024 * 10;
-        //var bytesRemaining = file.Length;
-        //var binaryReader = new BinaryReader(file);
-        //var allBytes = new List<byte>();
-        //while (bytesRemaining > 0)
-        //{
-        //    var bytes = binaryReader.ReadBytes(bytesPerFrame);
-        //    allBytes.AddRange(bytes);
-        //    bytesRemaining -= bytesPerFrame;
-        //    yield return null;
-        //}
-
-  
     }
 
     public void OnAttackButton()

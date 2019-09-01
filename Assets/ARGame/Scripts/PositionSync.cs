@@ -11,16 +11,21 @@ public class PositionSync : MonoBehaviour
 
     [SerializeField] private int _WSPort;
     [SerializeField] private Transform _syncObjTransform;   //Share transform
-    [SerializeField] GameObject OtherCube;   //Share transform
     [SerializeField] private SyncPhase _nowPhase;
     [SerializeField] private  float speed = 1f;
 
+    private int _MyId;
+    public Dictionary<int, GameObject> OherPlayers = new Dictionary<int, GameObject>();
 
-    public GameObject bullet;
+    public GameObject bulletPrefab;
+    public GameObject otherPlayerPrefab;
+
 
     private WebSocket ws;
     public InputField IP_inputField;
     public InputField interval_inputField;
+    [SerializeField]
+    private Text _myIdWindow;
 
     [SerializeField]
     private float tmpTime = 0f;
@@ -52,11 +57,11 @@ public class PositionSync : MonoBehaviour
     {
         if (_nowPhase == SyncPhase.Syncing)
         {
-            Debug.Log("Player Pos : " + pos);
+            //Debug.Log("Player Pos : " + pos);
 
             JsonData Item = new JsonData();
             Item.type = "player";
-            //Item.id = 1;
+            Item.id = _MyId;
             Item.posX = pos.x;
             Item.posY = pos.y;
             Item.posZ = pos.z;
@@ -65,6 +70,9 @@ public class PositionSync : MonoBehaviour
             Item.eulerAngleZ = eulerAngle.z;
 
             string serialisedItemJson = JsonUtility.ToJson(Item);
+
+            Debug.Log("serialisedItemJson : " + serialisedItemJson);
+
 
             ws.Send(serialisedItemJson);
         }
@@ -133,9 +141,9 @@ private void Update()
 	{
 		var ca = "ws://" + IP_inputField.text + ":" + _WSPort.ToString();
 		Debug.Log("Connect to " + ca);
-		ws = new WebSocket(ca);
+        ws = null;
 
-       
+        ws = new WebSocket(ca);
 
         var context = System.Threading.SynchronizationContext.Current;
 
@@ -147,7 +155,6 @@ private void Update()
             Debug.Log("Recieved :" + e.Data);
 
             JsonData item = JsonUtility.FromJson<JsonData>(e.Data);
-            Debug.Log("Recieved :" + e.Data);
 
 
             Vector3 pos = new Vector3(item.posX, item.posY, item.posZ);
@@ -156,16 +163,45 @@ private void Update()
             //otherPlayerのpositionを更新
             if (item.type == "player")
             {
-                
 
-
-                // Main Threadでposition更新を実行する.
-                context.Post(state =>
+                //TODO OtherPlayer追加をまとめる
+                //OtherPlayersDicに追加されていないplayerがいたら追加
+                if (!OherPlayers.ContainsKey(item.id))
                 {
-                    OtherCube.transform.position = pos;
-                    OtherCube.transform.eulerAngles = eulerAngles;
+                    context.Post(state =>
+                    {
+                        GameObject otherPlayer = Instantiate(otherPlayerPrefab) as GameObject;
+                        OherPlayers.Add(item.id, otherPlayer);
 
-                }, e.Data);
+                    }, null);
+                }
+
+                if (item.id != _MyId)
+                {
+
+                    // Main Threadでposition更新を実行する.
+                    context.Post(state =>
+                    {
+                        Debug.Log("player id : " + item.id + " moving");
+
+                        Debug.LogWarning("warning start0");
+
+                        foreach (var otherplayer in OherPlayers)
+                        {
+                            Debug.LogWarning("warning start");
+
+                            Debug.LogWarning(otherplayer.Key);
+                            Debug.LogWarning(otherplayer.Value);
+
+                        }
+                        if (item.id != 0)
+                        {
+                            OherPlayers[item.id].transform.position = pos;
+                            OherPlayers[item.id].transform.eulerAngles = eulerAngles;
+                        }
+                    }, null);
+
+                }
 
             }
             else if(item.type == "skill")
@@ -173,20 +209,42 @@ private void Update()
                 // Main Threadでposition更新を実行する.
                 context.Post(state =>
                 {
-                    GameObject bullets = Instantiate(bullet) as GameObject;
+                    GameObject bullets = Instantiate(bulletPrefab) as GameObject;
                     bullets.transform.position = pos;
                     bullets.transform.eulerAngles = eulerAngles;
                     Vector3 force;
                     force = bullets.transform.forward * speed;
                     bullets.GetComponent<Rigidbody>().AddForce(force);
 
-                }, e.Data);
+                }, null);
 
        
             }
+            //wsが追加されたときに一度呼ばれる
             else if(item.type == "connection")
             {
-                Debug.Log("new connection id : " +  item.id);
+                _MyId = item.id;
+                context.Post(state =>
+                {
+                    _myIdWindow.text = _MyId.ToString();
+                },null );
+                Debug.Log("new connection id : " + _MyId);
+
+
+            }
+            else if (item.type == "anotherconnection")
+            {
+                Debug.Log("anotherconnection");
+                context.Post(state =>
+                {
+                    GameObject otherPlayer = Instantiate(otherPlayerPrefab) as GameObject;
+                    Debug.Log("instantiate otherplayer");
+                    OherPlayers.Add(item.id,otherPlayer);
+                    Debug.Log("OherPlayers.Count :" + OherPlayers.Count);
+
+
+                }, null);
+                Debug.Log("Another Player comming id : " + item.id);
             }
 
 
@@ -217,6 +275,7 @@ private void Update()
 	public void OnSyncStopButtonDown()
 	{
 		ws.Close(); //Disconnect
+        ws = null;
         _nowPhase = SyncPhase.Idling;
 
     }
