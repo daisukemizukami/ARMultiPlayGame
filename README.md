@@ -1,14 +1,14 @@
-# AR Foundation Samples
-Example projects that use *AR Foundation* and demonstrate its functionality with sample assets and components.
+# ARMultiPlayGame
+UnityとNode.jsを利用した。ARGameプラットフォーム
 
-Compatible with Unity 2019.1 and later.
 
+（修正中）
 ## Instructions for installing AR Foundation
 
 1. Download the latest version of Unity 2019.1 or later.
 
-2. Open Unity, and load the project at the root of the *arfoundation-samples* repository.
+2. Open Unity, and load the project at the root of the ?? repository.
 
-3. Open your choice of sample scene.
+3. Open your choice of ?? scene.
 
-4. See the [AR Foundation Documentation](https://docs.unity3d.com/Packages/com.unity.xr.arfoundation@2.0) for usage instructions and more information.
+4. ??
