@@ -1,0 +1,3 @@
+[submodule "ARGameServer"]
+	path = ARGameServer
+	url = https://daisukemizukami@github.com/daisukemizukami/ARGameServer.git
