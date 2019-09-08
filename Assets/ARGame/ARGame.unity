@@ -632,9 +632,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _WSPort: 8080
   _syncObjTransform: {fileID: 2128786032}
-  OtherCube: {fileID: 0}
   _nowPhase: 0
-  speed: 1
+  speed: 20
   bulletPrefab: {fileID: 564115706835456113, guid: 1064b34c884104f3b879a522f67800a6,
     type: 3}
   otherPlayerPrefab: {fileID: 295206554926245326, guid: 7eca8fa0f606546d89e78391ae53a58f,
@@ -3073,7 +3072,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 2.4e-44, z: 2.504e-42, w: 1.05e-43}
+  m_BoundingSphereOverride: {x: 4.661e-42, y: 6.043002e+25, z: 1e-45, w: 4.9e-44}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0

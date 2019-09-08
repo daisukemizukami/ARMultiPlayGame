@@ -160,18 +160,36 @@ private void Update()
             Vector3 pos = new Vector3(item.posX, item.posY, item.posZ);
             Vector3 eulerAngles = new Vector3(item.eulerAngleX, item.eulerAngleY, item.eulerAngleZ);
 
-            //otherPlayerのpositionを更新
-            if (item.type == "player")
-            {
 
-                //TODO OtherPlayer追加をまとめる
-                //OtherPlayersDicに追加されていないplayerがいたら追加
-                if (!OherPlayers.ContainsKey(item.id))
+            //wsが追加されたときに一度呼ばれる
+            if (item.type == "connection")
+            {
+                _MyId = item.id;
+                Debug.LogWarning("MyId is set" + _MyId);
+
+                context.Post(state =>
+                {
+                    _myIdWindow.text = _MyId.ToString();
+                }, null);
+                Debug.Log("new connection id : " + _MyId);
+             }
+            //otherPlayerのpositionを更新
+            else if (item.type == "player")
+            {
+                //OtherPlayersDicにaddされていないplayerがいたら追加
+                if (!OherPlayers.ContainsKey(item.id)　& item.id != 0 & item.id != _MyId)
                 {
                     context.Post(state =>
                     {
                         GameObject otherPlayer = Instantiate(otherPlayerPrefab) as GameObject;
                         OherPlayers.Add(item.id, otherPlayer);
+
+                        foreach (var otherplayer in OherPlayers)
+                        {
+                            Debug.LogWarning("new OtherPlayer comming");
+                            Debug.LogWarning(otherplayer.Key);
+                            Debug.LogWarning(otherplayer.Value);
+                        }
 
                     }, null);
                 }
@@ -182,18 +200,7 @@ private void Update()
                     // Main Threadでposition更新を実行する.
                     context.Post(state =>
                     {
-                        Debug.Log("player id : " + item.id + " moving");
-
-                        Debug.LogWarning("warning start0");
-
-                        foreach (var otherplayer in OherPlayers)
-                        {
-                            Debug.LogWarning("warning start");
-
-                            Debug.LogWarning(otherplayer.Key);
-                            Debug.LogWarning(otherplayer.Value);
-
-                        }
+                        //Debug.Log("player id : " + item.id + " moving");
                         if (item.id != 0)
                         {
                             OherPlayers[item.id].transform.position = pos;
@@ -220,32 +227,21 @@ private void Update()
 
        
             }
-            //wsが追加されたときに一度呼ばれる
-            else if(item.type == "connection")
-            {
-                _MyId = item.id;
-                context.Post(state =>
-                {
-                    _myIdWindow.text = _MyId.ToString();
-                },null );
-                Debug.Log("new connection id : " + _MyId);
+            
+            //else if (item.type == "anotherconnection")
+            //{
+            //    Debug.Log("anotherconnection");
+            //    context.Post(state =>
+            //    {
+            //        GameObject otherPlayer = Instantiate(otherPlayerPrefab) as GameObject;
+            //        Debug.Log("instantiate otherplayer");
+            //        OherPlayers.Add(item.id,otherPlayer);
+            //        Debug.Log("OherPlayers.Count :" + OherPlayers.Count);
 
 
-            }
-            else if (item.type == "anotherconnection")
-            {
-                Debug.Log("anotherconnection");
-                context.Post(state =>
-                {
-                    GameObject otherPlayer = Instantiate(otherPlayerPrefab) as GameObject;
-                    Debug.Log("instantiate otherplayer");
-                    OherPlayers.Add(item.id,otherPlayer);
-                    Debug.Log("OherPlayers.Count :" + OherPlayers.Count);
-
-
-                }, null);
-                Debug.Log("Another Player comming id : " + item.id);
-            }
+            //    }, null);
+            //    Debug.Log("Another Player comming id : " + item.id);
+            //}
 
 
 
