@@ -5,6 +5,8 @@ using UnityEngine;
 using WebSocketSharp;
 using UniRx;
 using UnityEngine.UI;
+//using PlayerData;
+
 
 public class WebsocketTest : MonoBehaviour
 {
@@ -48,7 +50,7 @@ public class WebsocketTest : MonoBehaviour
 
 
     //playerのposを送信
-    public void OnChangedTargetTransformValue(Vector3 pos,Vector3 eulerAngle)
+    public void OnChangedTargetTransformValue(Vector3 pos,Vector3 rotation)
     {
         if (_nowPhase == SyncPhase.Syncing)
         {
@@ -60,9 +62,9 @@ public class WebsocketTest : MonoBehaviour
             Item.posX = pos.x;
             Item.posY = pos.y;
             Item.posZ = pos.z;
-            Item.eulerAngleX = eulerAngle.x;
-            Item.eulerAngleY = eulerAngle.y;
-            Item.eulerAngleZ = eulerAngle.z;
+            Item.rotationX = rotation.x;
+            Item.rotationY = rotation.y;
+            Item.rotationZ = rotation.z;
 
             string serialisedItemJson = JsonUtility.ToJson(Item);
 
@@ -104,9 +106,9 @@ public class WebsocketTest : MonoBehaviour
         item.posX = pos.position.x;
         item.posY = pos.position.y;
         item.posZ = pos.position.z;
-        item.eulerAngleX = pos.eulerAngles.x;
-        item.eulerAngleY = pos.eulerAngles.y;
-        item.eulerAngleZ = pos.eulerAngles.z;
+        item.rotationX = pos.rotation.x;
+        item.rotationY = pos.rotation.y;
+        item.rotationZ = pos.rotation.z;
 
         string serialisedItemJson = JsonUtility.ToJson(item);
         ws.Send(serialisedItemJson);
@@ -119,7 +121,7 @@ public class WebsocketTest : MonoBehaviour
 //       if( tmpTime > _interval)
 //        {
           
-//            OnChangedTargetTransformValue(_syncObjTransform.position,_syncObjTransform.eulerAngles);
+//            OnChangedTargetTransformValue(_syncObjTransform.position,_syncObjTransform.rotations);
      
 //            tmpTime = 0;
 //        }
@@ -152,7 +154,7 @@ public class WebsocketTest : MonoBehaviour
 
 
             //Vector3 pos = new Vector3(item.posX, item.posY, item.posZ);
-            //Vector3 eulerAngles = new Vector3(item.eulerAngleX, item.eulerAngleY, item.eulerAngleZ);
+            //Vector3 rotations = new Vector3(item.rotationX, item.rotationY, item.rotationZ);
 
             //otherPlayerのpositionを更新
 
@@ -165,7 +167,7 @@ public class WebsocketTest : MonoBehaviour
             //    context.Post(state =>
             //    {
             //        //OtherCube.transform.position = pos;
-            //        //OtherCube.transform.eulerAngles = eulerAngles;
+            //        //OtherCube.transform.rotations = rotations;
 
             //    }, e.Data);
 
@@ -177,7 +179,7 @@ public class WebsocketTest : MonoBehaviour
             //    {
             //        //GameObject bullets = Instantiate(bullet) as GameObject;
             //        //bullets.transform.position = pos;
-            //        //bullets.transform.eulerAngles = eulerAngles;
+            //        //bullets.transform.rotations = rotations;
             //        //Vector3 force;
             //        //force = bullets.transform.forward * speed;
             //        //bullets.GetComponent<Rigidbody>().AddForce(force);

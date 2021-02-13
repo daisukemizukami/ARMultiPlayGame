@@ -15,7 +15,6 @@ using UnityEngine.XR.ARSubsystems;
 using UnityEngine.XR.ARKit;
 #endif
 
-
 public class ARGame : MonoBehaviour
 {
     [Tooltip("The ARSession component controlling the session from which to generate ARWorldMaps.")]
@@ -30,7 +29,6 @@ public class ARGame : MonoBehaviour
     [SerializeField] string _PostDirectory;
     [SerializeField] string _GetDirectory;
 
-
     /// <summary>
     /// A UI button component which will generate an ARWorldMap and save it to disk.
     /// </summary>
@@ -39,7 +37,6 @@ public class ARGame : MonoBehaviour
         get { return m_SaveButton; }
         set { m_SaveButton = value; }
     }
-
 
     [Tooltip("A UI button component which will load a previously saved ARWorldMap from disk and apply it to the current session.")]
     [SerializeField]
@@ -214,9 +211,7 @@ public class ARGame : MonoBehaviour
 
             Debug.Log("Apply ARWorldMap to current session.");
 
-
             //sessionSubsystem.ApplyWorldMap(worldMap);
-
 
         }
 

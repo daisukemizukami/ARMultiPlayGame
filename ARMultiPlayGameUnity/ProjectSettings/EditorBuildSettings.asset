@@ -51,9 +51,6 @@ EditorBuildSettings:
     path: Assets/Scenes/UX/SampleUXScene.unity
     guid: 3b42d67a72bbc4004bf713db0e312326
   - enabled: 0
-    path: Assets/ARMultiPlayGame/ARMultiPlayGameUnityEditor.unity
-    guid: 475849c576691495ab271386ff847823
-  - enabled: 0
     path: Assets/ARMultiPlayGame/WebrequestTest.unity
     guid: 7cbc94a1e5d694a6a982b922313fc48b
   - enabled: 1

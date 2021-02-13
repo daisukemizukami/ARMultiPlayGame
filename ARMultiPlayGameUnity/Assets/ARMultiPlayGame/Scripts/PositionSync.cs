@@ -5,13 +5,14 @@ using UnityEngine;
 using WebSocketSharp;
 using UniRx;
 using UnityEngine.UI;
+using ARGameSettings;
 
 public class PositionSync : MonoBehaviour
 {
 
     [SerializeField] private int _WSPort;
     [SerializeField] private Transform _syncObjTransform;   //Share transform
-    [SerializeField] private SyncPhase _nowPhase;
+    [SerializeField] SyncPhase _nowPhase;
     [SerializeField] private  float speed = 1f;
 
     private int _MyId;
@@ -21,7 +22,7 @@ public class PositionSync : MonoBehaviour
     public GameObject otherPlayerPrefab;
 
 
-    private WebSocket ws;
+    public WebSocket ws;
     public InputField IP_inputField;
     public InputField interval_inputField;
     [SerializeField]
@@ -32,11 +33,7 @@ public class PositionSync : MonoBehaviour
     [SerializeField]
     private float _interval = 0.1f;
 
-    public enum SyncPhase
-    {
-        Idling,
-        Syncing
-    }
+    
 
     private void Awake()
     {
@@ -53,7 +50,7 @@ public class PositionSync : MonoBehaviour
 
 
     //playerのposを送信
-    public void OnChangedTargetTransformValue(Vector3 pos,Vector3 eulerAngle)
+    public void OnChangedTargetTransformValue(Vector3 pos,Vector3 rotation)
     {
         if (_nowPhase == SyncPhase.Syncing)
         {
@@ -65,9 +62,9 @@ public class PositionSync : MonoBehaviour
             Item.posX = pos.x;
             Item.posY = pos.y;
             Item.posZ = pos.z;
-            Item.eulerAngleX = eulerAngle.x;
-            Item.eulerAngleY = eulerAngle.y;
-            Item.eulerAngleZ = eulerAngle.z;
+            Item.rotationX = rotation.x;
+            Item.rotationY = rotation.y;
+            Item.rotationZ = rotation.z;
 
             string serialisedItemJson = JsonUtility.ToJson(Item);
 
@@ -109,12 +106,13 @@ public class PositionSync : MonoBehaviour
 
         JsonData item = new JsonData();
         item.type = "skill";
+        item.id = _MyId;
         item.posX = pos.position.x;
         item.posY = pos.position.y;
         item.posZ = pos.position.z;
-        item.eulerAngleX = pos.eulerAngles.x;
-        item.eulerAngleY = pos.eulerAngles.y;
-        item.eulerAngleZ = pos.eulerAngles.z;
+        item.rotationX = pos.rotation.x;
+        item.rotationY = pos.rotation.y;
+        item.rotationZ = pos.rotation.z;
 
         string serialisedItemJson = JsonUtility.ToJson(item);
         ws.Send(serialisedItemJson);
@@ -127,7 +125,7 @@ private void Update()
        if( tmpTime > _interval)
         {
           
-            OnChangedTargetTransformValue(_syncObjTransform.position,_syncObjTransform.eulerAngles);
+            OnChangedTargetTransformValue(_syncObjTransform.position,_syncObjTransform.rotation);
      
             tmpTime = 0;
         }
@@ -158,7 +156,7 @@ private void Update()
 
 
             Vector3 pos = new Vector3(item.posX, item.posY, item.posZ);
-            Vector3 eulerAngles = new Vector3(item.eulerAngleX, item.eulerAngleY, item.eulerAngleZ);
+            Vector3 rotations = new Vector3(item.rotationX, item.rotationY, item.rotationZ);
 
 
             //wsが追加されたときに一度呼ばれる
@@ -183,6 +181,7 @@ private void Update()
                     {
                         GameObject otherPlayer = Instantiate(otherPlayerPrefab) as GameObject;
                         OherPlayers.Add(item.id, otherPlayer);
+                        otherPlayer.GetComponent<OtherPlayerManager>().id = item.id;
 
                         foreach (var otherplayer in OherPlayers)
                         {
@@ -204,7 +203,7 @@ private void Update()
                         if (item.id != 0)
                         {
                             OherPlayers[item.id].transform.position = pos;
-                            OherPlayers[item.id].transform.eulerAngles = eulerAngles;
+                            OherPlayers[item.id].transform.rotations = rotations;
                         }
                     }, null);
 
@@ -216,12 +215,14 @@ private void Update()
                 // Main Threadでposition更新を実行する.
                 context.Post(state =>
                 {
-                    GameObject bullets = Instantiate(bulletPrefab) as GameObject;
-                    bullets.transform.position = pos;
-                    bullets.transform.eulerAngles = eulerAngles;
+                    GameObject bullet = Instantiate(bulletPrefab) as GameObject;
+                    bullet.GetComponent<BulletManager>().id = item.id;
+                    Debug.LogWarning("bullet id is " + item.id);
+                    bullet.transform.position = pos;
+                    bullet.transform.rotations = rotations;
                     Vector3 force;
-                    force = bullets.transform.forward * speed;
-                    bullets.GetComponent<Rigidbody>().AddForce(force);
+                    force = bullet.transform.forward * speed;
+                    bullet.GetComponent<Rigidbody>().AddForce(force);
 
                 }, null);
 
